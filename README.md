@@ -2,7 +2,7 @@
 
 ## Running
 
-    tshark -X lua_script:tls-cipher-counter.lua -r <packet-capture-file>
+    tshark -X lua_script:tls-cipher-counter.lua -q -r <packet-capture-file>
 
 ## Regenerating Ciphers
 
