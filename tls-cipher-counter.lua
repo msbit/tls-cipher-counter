@@ -22,8 +22,14 @@ local function init_listener()
   end
 
   function tap.draw()
+    require "ciphersuites"
+
     for id, count in pairs(ciphers) do
-      print(id, count)
+      if type(ciphersuites[id]) == 'nil' then
+        print(id, count)
+      else
+        print(ciphersuites[id], count)
+      end
     end
   end
 end
