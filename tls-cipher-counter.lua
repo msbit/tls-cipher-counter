@@ -1,6 +1,30 @@
 local client_ciphers = {}
 local server_ciphers = {}
 
+local function print_ciphers(ciphers)
+  require "ciphersuites"
+
+  local cipher_ids = {}
+  for k, _ in pairs(ciphersuites) do
+    table.insert(cipher_ids, k)
+  end
+  table.sort(cipher_ids)
+
+  for _, cipher_id in pairs(cipher_ids) do
+    if type(ciphers[cipher_id]) ~= 'nil' then
+      print(ciphersuites[cipher_id], ciphers[cipher_id])
+
+      ciphers[cipher_id] = nil
+    end
+  end
+
+  for id, count in pairs(ciphers) do
+    print(id, count)
+  end
+
+  print()
+end
+
 local function init_client_listener()
   local cipher_suites_length = Field.new("ssl.handshake.cipher_suites_length")
   local client_tap = Listener.new("ssl", "ssl.handshake.type == 1")
@@ -23,19 +47,9 @@ local function init_client_listener()
   end
 
   function client_tap.draw()
-    require "ciphersuites"
-
     print("CLIENT CIPHERS\n")
 
-    for id, count in pairs(client_ciphers) do
-      if type(ciphersuites[id]) == 'nil' then
-        print(id, count)
-      else
-        print(ciphersuites[id], count)
-      end
-    end
-
-    print()
+    print_ciphers(client_ciphers)
   end
 end
 
@@ -57,19 +71,9 @@ local function init_server_listener()
   end
 
   function server_tap.draw()
-    require "ciphersuites"
-
     print("SERVER CIPHERS\n")
 
-    for id, count in pairs(server_ciphers) do
-      if type(ciphersuites[id]) == 'nil' then
-        print(id, count)
-      else
-        print(ciphersuites[id], count)
-      end
-    end
-
-    print()
+    print_ciphers(server_ciphers)
   end
 end
 
