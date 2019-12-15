@@ -25,6 +25,13 @@ local function print_ciphers(ciphers)
   print()
 end
 
+local function increment_key(table, key)
+  if type(table[key]) == 'nil' then
+    table[key] = 0
+  end
+  table[key] = table[key] + 1
+end
+
 local function init_client_listener()
   local cipher_suites_length = Field.new("ssl.handshake.cipher_suites_length")
   local client_tap = Listener.new("ssl", "ssl.handshake.type == 1")
@@ -39,10 +46,7 @@ local function init_client_listener()
     local cipher_index = count_length_offset + 2
     for i = 0, count - 1 do
       local id = tostring(tvb:range(cipher_index + (i * 2), 0x2):bytes())
-      if type(client_ciphers[id]) == 'nil' then
-        client_ciphers[id] = 0
-      end
-      client_ciphers[id] = client_ciphers[id] + 1
+      increment_key(client_ciphers, id)
     end
   end
 
@@ -64,10 +68,7 @@ local function init_server_listener()
   function server_tap.packet(pinfo, tvb, client_tapinfo)
     local result = ciphersuite()
     local id = tostring(result.range:bytes())
-    if type(server_ciphers[id]) == 'nil' then
-      server_ciphers[id] = 0
-    end
-    server_ciphers[id] = server_ciphers[id] + 1
+    increment_key(server_ciphers, id)
   end
 
   function server_tap.draw()
