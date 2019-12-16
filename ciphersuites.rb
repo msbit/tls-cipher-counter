@@ -5,17 +5,13 @@ require 'json'
 
 require 'open-uri'
 
-output = {}
+output = {
+  '00FF' => 'TLS_EMPTY_RENEGOTIATION_INFO_SCSV'
+}
 
 open('https://ciphersuite.info/api/cs/') do |f|
   content = File.read(f)
   data = JSON.parse(content)
-
-  data['ciphersuites'].sort! do |a, b|
-    a_bytes = [a.values.first['hex_byte_1'], a.values.first['hex_byte_2']]
-    b_bytes = [b.values.first['hex_byte_1'], b.values.first['hex_byte_2']]
-    a_bytes <=> b_bytes
-  end
 
   data['ciphersuites'].each do |c|
     c.each do |k, v|
@@ -27,6 +23,8 @@ open('https://ciphersuite.info/api/cs/') do |f|
     end
   end
 end
+
+output = output.sort_by { |k, _| k }.to_h
 
 File.open('ciphersuites.lua', 'w') do |file|
   file.write("ciphersuites = {\n")
