@@ -1,6 +1,12 @@
 local client_ciphers = {}
 local server_ciphers = {}
 
+local major_version = tonumber(get_version():match("(%d+)%.*"))
+local protocol = "tls"
+if major_version < 3 then
+  protocol = "ssl"
+end
+
 local function print_ciphers(ciphers)
   require "ciphersuites"
 
@@ -33,8 +39,8 @@ local function increment_key(table, key)
 end
 
 local function init_client_listener()
-  local cipher_suites_length = Field.new("ssl.handshake.cipher_suites_length")
-  local client_tap = Listener.new("ssl", "ssl.handshake.type == 1")
+  local cipher_suites_length = Field.new(protocol .. ".handshake.cipher_suites_length")
+  local client_tap = Listener.new(protocol, protocol .. ".handshake.type == 1")
 
   function client_tap.reset()
     client_ciphers = {}
@@ -58,8 +64,8 @@ local function init_client_listener()
 end
 
 local function init_server_listener()
-  local ciphersuite = Field.new("ssl.handshake.ciphersuite")
-  local server_tap = Listener.new("ssl", "ssl.handshake.type == 2")
+  local ciphersuite = Field.new(protocol .. ".handshake.ciphersuite")
+  local server_tap = Listener.new(protocol, protocol .. ".handshake.type == 2")
 
   function server_tap.reset()
     server_ciphers = {}
