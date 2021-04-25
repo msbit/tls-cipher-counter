@@ -9,7 +9,7 @@ output = {
   '00FF' => 'TLS_EMPTY_RENEGOTIATION_INFO_SCSV'
 }
 
-open('https://ciphersuite.info/api/cs/') do |f|
+URI.open('https://ciphersuite.info/api/cs/') do |f|
   content = File.read(f)
   data = JSON.parse(content)
 
